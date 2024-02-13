@@ -21,11 +21,28 @@ def create_user():
     balance = int(request.args['balance'])
 
     try:
-        db.session.add(User(username, balance))
-        db.session.commit()
+        User.add_user(username, balance)
     except AssertionError as e:
         return Response(json.dumps({
             'errors': e.args
         }), status=422)    
 
     return Response(status=201)
+
+
+@app.put('/user/<user_id>')
+def update_user(user_id: int):
+    username = request.args.get('username')
+    balance = request.args.get('balance')
+    balance = int(balance) if balance else None
+
+    try:
+        user = User.update_user(user_id, username=username, balance=balance)
+    except AssertionError as e:
+        return Response(json.dumps({
+            'errors': e.args
+        }), status=422)    
+
+    return Response(json.dumps(
+        {'message': 'success'}
+    ), status=200)
