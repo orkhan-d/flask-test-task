@@ -26,6 +26,14 @@ class User(db.Model):
         db.session.commit()
 
     @staticmethod
+    def change_balance(user_id: int, balance: int):
+        user = db.session.query(User)\
+                          .filter(User.id==user_id).one()
+        user.balance+=balance
+
+        db.session.commit()
+
+    @staticmethod
     def delete_user(user_id: int):
         db.session.delete(db.session.query(User)\
                           .filter(User.id==user_id).one())
@@ -42,12 +50,16 @@ class User(db.Model):
         db.session.commit()
 
         return user
+    
+    @staticmethod
+    def get_users():
+        return db.session.query(User).all()
 
     @validates('balance')
     def check_balance(self, key: str, value: int):
-        if value<5000 or value>15000:
+        if value<0:
             raise AssertionError({
-                'balance': 'balance should be between 5000 and 15000'
+                'balance': 'balance cannot be negative'
             })
         
         return value
